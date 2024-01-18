@@ -1,0 +1,41 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.pyz
+*.pyw
+*.pyo
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+
+# Environment
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+env.tmp/
+*.egg-info/
+dist/
+
+# Logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
