@@ -2,7 +2,7 @@
     "hiddenNodes": [
         "transit"
     ],
-    "name": "NEW",
+    "name": "backup-view-api",
     "parameters": {
         "groupBy": "siteName",
         "paths": [

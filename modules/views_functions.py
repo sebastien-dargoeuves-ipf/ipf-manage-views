@@ -8,6 +8,9 @@ from ipfabric.tools import DiscoveryHistory
 from modules.classDefinitions import Settings
 
 
+# exclude the new_sn from the choice for backup, as we don't know if the sn is present
+# fix the issue when selection the file with original sn, the view doesn't get created
+
 def select_json_file(settings: Settings):
     # # Get the list of files in the folders
     file_list = []
@@ -34,7 +37,13 @@ def select_json_file(settings: Settings):
 
 def select_json_folder(settings: Settings):
     # Get the list of files in the folder
-    folder_list = [folder for folder in os.listdir(settings.FOLDER_JSON) if os.path.isdir(os.path.join(settings.FOLDER_JSON, folder))]
+    # folder_list = [folder for folder in os.listdir(settings.FOLDER_JSON) if os.path.isdir(os.path.join(settings.FOLDER_JSON, folder))]
+    folder_list = []
+    for root, dirs, files in os.walk(settings.FOLDER_JSON):
+        folder_list.extend(os.path.join(root, dir) for dir in dirs if dir.endswith(settings.FOLDER_JSON_ORIGINAL_SN) or dir.endswith(settings.FOLDER_JSON_HOSTNAME) or dir.endswith(settings.FOLDER_JSON_NEW_SN))
+    if not folder_list:
+        logger.warning(f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore.")
+        return False
 
     print(f"List of folders in the `{settings.FOLDER_JSON}` directory:")
     for i, folder_name in enumerate(folder_list):
@@ -48,8 +57,8 @@ def select_json_folder(settings: Settings):
         if 1 <= selection <= len(folder_list):
             # Get the selected file name
             folder_name = folder_list[selection - 1]
-            folder_path = os.path.join(settings.FOLDER_JSON, folder_name)
-            return [os.path.join(folder_path, file) for file in os.listdir(folder_path)]
+            # folder_path = os.path.join(settings.FOLDER_JSON, folder_name)
+            return [os.path.join(folder_name, file) for file in os.listdir(folder_name)]
         else:
             print("Selection outside the scope. Please select a valid number.")
 
@@ -72,7 +81,7 @@ def get_last_hostname_to_sn_mapping(ipf: IPFClient):
     return ipf.inventory.devices.all(columns=["hostname", "sn"])
 
 
-def replace_sn_with_hostname(selected_file, json_data, sn_to_device_mapping):
+def replace_sn_with_hostname(destination_file, json_data, sn_to_device_mapping):
     """
     Replace the serial number with the hostname
     :param sn_to_device_mapping: dict
@@ -88,12 +97,12 @@ def replace_sn_with_hostname(selected_file, json_data, sn_to_device_mapping):
             json_data["positions"][hostname] = json_data["positions"].pop(sn)
 
     # Save the updated JSON file
-    new_file = selected_file.replace('.json','_HOSTNAME.json')
-    with open(new_file, "w") as file:
+    # new_file = f"w_hostname/{destination_file.replace('.json','_HOSTNAME.json')}"
+    with open(destination_file, "w") as file:
         json.dump(json_data, file, indent=4)
 
-    logger.debug(f"JSON file successfully created/updated: {new_file}")
-    return new_file
+    logger.debug(f"JSON file successfully created/updated: {destination_file}")
+    return destination_file
 
 def replace_hostname_with_last_sn(selected_file, json_data, hostname_to_sn_mapping):
     """
@@ -129,7 +138,7 @@ def create_view(current_view_name, execution_time, ipf, selected_json, unattende
     selected_json["name"] = new_view_name
     post_create_view = ipf.post("graphs/views", json=selected_json)
     if post_create_view.status_code == 200:
-        logger.debug(f"View `{new_view_name}` successfully created - {post_create_view}")
+        logger.info(f"View `{new_view_name}` successfully created - {post_create_view}")
     else:
         logger.error(f"View `{new_view_name}` NOT created - {post_create_view}")
 
@@ -149,16 +158,22 @@ def f_backup_views(settings: Settings, execution_time, unattended: bool):
     backup_folder_name = typer.prompt("Chose a name for this backup folder",type=str, default=f"{execution_time.replace(':','').replace(' ','_')}_backup")
     backup_folder  = os.path.join(settings.FOLDER_JSON, backup_folder_name)
     if not os.path.exists(backup_folder):
-        os.makedirs(backup_folder)
+        os.makedirs(f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}")
+        os.makedirs(f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}")
+        os.makedirs(f"{backup_folder}/{settings.FOLDER_JSON_NEW_SN}")
     
     ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
+    sn_to_device_mapping = get_sn_to_device_mapping(ipf)
     all_views = ipf.get("graphs/views").json()
     for view_data in all_views:
         view_name = re.sub(r'[<>:"/\\|?*&#^()\[\]+={}%$@!`~]', "", view_data["name"])
         for key in settings.KEYS_TO_REMOVE:
             if key in view_data:
                 del view_data[key]
-        with open(f"{backup_folder}/{view_name}.json", "w") as file:
+        # Replace the serial number with the hostname
+        replace_sn_with_hostname(f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}/{view_name}_HOSTNAME.json", view_data, sn_to_device_mapping)
+        # Save the original JSON file
+        with open(f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}/{view_name}.json", "w") as file:
             json.dump(view_data, file, indent=4)
         logger.debug(f"View {view_name} successfully backed up")
     return True
@@ -197,13 +212,15 @@ def f_restore_views(settings: Settings, execution_time, scope: str, unattended: 
         # using the information from the Discovery History
         if not selected_file.endswith("_HOSTNAME.json") and not selected_file.endswith("_NEW_SN.json"):
             sn_to_device_mapping = get_sn_to_device_mapping(ipf)
-            selected_file = replace_sn_with_hostname(selected_file, selected_json, sn_to_device_mapping)
+            # if the device deosn't end with HOSTNAME, we need to copy it in the w_hostname folder
+            selected_file = selected_file.replace('.json','_HOSTNAME.json')
+            selected_file = replace_sn_with_hostname(selected_file.replace(settings.FOLDER_JSON_ORIGINAL_SN, settings.FOLDER_JSON_HOSTNAME), selected_json, sn_to_device_mapping)
         
         # if the file is a json with HOSTNAME instead of SN, we need to replace all HOSTNAME by SN
         # using the information from the latest snapshot
         if selected_file.endswith("_HOSTNAME.json"):
             last_hostname_to_sn_mapping = get_last_hostname_to_sn_mapping(ipf)
-            selected_file = replace_hostname_with_last_sn(selected_file, selected_json, last_hostname_to_sn_mapping)
+            selected_file = replace_hostname_with_last_sn(selected_file.replace("w_hostname","w_new_sn"), selected_json, last_hostname_to_sn_mapping)
 
         # Now we can create the view
         if selected_file.endswith("_NEW_SN.json"):

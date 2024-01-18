@@ -17,5 +17,8 @@ class Settings(BaseSettings):
     IPF_VERIFY: bool = eval(os.getenv("IPF_VERIFY", "False").title())
 
     FOLDER_JSON: str = os.getenv("FOLDER_JSON", "json")
+    FOLDER_JSON_ORIGINAL_SN: str = os.getenv("FOLDER_OLD_SN", "w_original_sn")
+    FOLDER_JSON_HOSTNAME: str = os.getenv("FOLDER_OLD_SN", "w_hostname")
+    FOLDER_JSON_NEW_SN: str = os.getenv("FOLDER_OLD_SN", "w_new_sn")
     KEYS_TO_REMOVE: List[str]= ["savedAt", "favorite", "id", "userId", "username"]
     # KEYS_TO_REMOVE: List[str] = os.getenv("KEYS_TO_REMOVE", "").split(",")
