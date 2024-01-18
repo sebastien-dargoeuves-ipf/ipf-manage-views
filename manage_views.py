@@ -10,61 +10,87 @@ settings = Settings()
 app = typer.Typer(add_completion=False, pretty_exceptions_show_locals = False, pretty_exceptions_short=True)
 
 
-@app.command()
-def main(
-    backup_views: bool = typer.Option(
+@app.callback()
+def logging_configuration():
+    logger.add("log_file.log")
+    logger.info("---- NEW EXECUTION OF SCRIPT ----")
+
+
+@app.command("backup")
+def backup(
+    unattended: bool = typer.Option(
         False,
-        "--backup-views",
-        "-b",
-        help="Backup existing views",
+        "--unattended",
+        "-u",
+        help="Backup views, without asking for confirmation",
     ),
-    restore_single_view: bool = typer.Option(
+):
+    execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended):
+        logger.info("Backup completed successfully")
+    else:
+        logger.warning("Backup failed")
+
+
+@app.command("restore")
+def restore(
+    single_view: bool = typer.Option(
         False,
-        "--restore-single-view",
-        "-rs",
-        help="Restore existing views",
+        "--single-file",
+        "-s",
+        help="Restore a single view",
     ),
-    restore_views: bool = typer.Option(
+    all_views: bool = typer.Option(
         False,
-        "--restore-views",
-        "-ra",
+        "--all-files",
+        "-a",
         help="Restore all saved views",
-    ),
-    delele_views: bool = typer.Option(
-        False,
-        "--delete-views",
-        "-d",
-        help="Delete existing views",
     ),
     unattended: bool = typer.Option(
         False,
         "--unattended",
         "-u",
-        help="Backup, delete and restore views, without asking for confirmation",
+        help="Restore views, without asking for confirmation",
     ),
 ):
+    if single_view or all_views:
+        scope = "single" if single_view else "all"
+        execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if f_restore_views(settings=settings, execution_time=execution_time, scope=scope, unattended=unattended):
+            logger.info("Restore completed successfully")
+        else:
+            logger.warning("Restore failed")
+    else:
+        logger.warning("None or both option(s) selected. Please select either --single-file or --all-files")
 
-    logger.add("log_file.log")
+
+@app.command("delete")
+def delete(
+    unattended: bool = typer.Option(
+        False,
+        "--unattended",
+        "-u",
+        help="Delete views, without asking for confirmation",
+    ),
+):
+    if f_delete_views(settings=settings, unattended=unattended):
+        logger.info("Delete completed successfully")
+    else:
+        logger.warning("Delete failed")
+
+@app.command("do-all")
+def force_update(
+    unattended: bool = typer.Option(
+        False,
+        "--unattended",
+        "-u",
+        help="Backup/Delete/Restore views, without asking for confirmation",
+    ),
+):
     execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logger.info("---- NEW EXECUTION OF SCRIPT ----")
-
-
-    if backup_views and f_backup_views(settings=settings, execution_time=execution_time, unattended=False):
-        logger.info("Backup of views completed successfully")
-
-    if restore_single_view or restore_views:
-        scope = "single" if restore_single_view else "all"
-        if f_restore_views(settings=settings, execution_time=execution_time, scope=scope, unattended=False):
-            logger.info("Restore of views completed successfully")
-
-    if delele_views and f_delete_views(settings=settings, unattended=unattended):
-            logger.info("Deletion of views completed successfully")
-
-    if unattended:
-        f_backup_views(settings=settings, execution_time=execution_time, unattended=False)
-        f_delete_views(settings=settings, unattended=unattended)
-        f_restore_views(settings=settings, execution_time=execution_time, scope="all", unattended=False)
-
+    f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended)
+    f_delete_views(settings=settings, unattended=unattended)
+    f_restore_views(settings=settings, execution_time=execution_time, scope="all", unattended=False)
 
 
 if __name__ == "__main__":

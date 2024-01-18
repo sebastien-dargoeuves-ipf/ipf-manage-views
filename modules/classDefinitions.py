@@ -19,26 +19,3 @@ class Settings(BaseSettings):
     FOLDER_JSON: str = os.getenv("FOLDER_JSON", "json")
     KEYS_TO_REMOVE: List[str]= ["savedAt", "favorite", "id", "userId", "username"]
     # KEYS_TO_REMOVE: List[str] = os.getenv("KEYS_TO_REMOVE", "").split(",")
-
-
-# class CvpComponent(BaseModel):
-#     deviceId: str
-#     entityId: str
-#     hostname: str
-#     tags: Dict[str, Any]
-#     type: str
-
-
-# class AristaCvpWebhook(BaseModel):
-#     acknowledged: bool
-#     components: List[CvpComponent]
-#     description: str
-#     event_type: str
-#     fired_at: datetime
-#     is_firing: bool
-#     is_test: bool
-#     key: str
-#     resolved_at: datetime
-#     severity: str
-#     source: str
-#     title: str

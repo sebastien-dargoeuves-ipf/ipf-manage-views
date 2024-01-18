@@ -1,5 +1,4 @@
 import os
-import sys
 import typer
 import json
 import re
@@ -10,18 +9,13 @@ from modules.classDefinitions import Settings
 
 
 def select_json_file(settings: Settings):
-    # # Get the list of files in the folder
-    # file_list = os.listdir(settings.FOLDER_JSON)
-
-    # if len(file_list) == 0:
-    #     logger.warning(f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore.")
-    #     sys.exit(0)
+    # # Get the list of files in the folders
     file_list = []
     for root, dirs, files in os.walk(settings.FOLDER_JSON):
         file_list.extend(os.path.join(root, file) for file in files)
     if not file_list:
         logger.warning(f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore.")
-        sys.exit(0)
+        return False
     # Display the list of files with corresponding numbers
     print(f"List of files in the '{settings.FOLDER_JSON}' folder:")
     for i, filename in enumerate(file_list):
@@ -98,7 +92,7 @@ def replace_sn_with_hostname(selected_file, json_data, sn_to_device_mapping):
     with open(new_file, "w") as file:
         json.dump(json_data, file, indent=4)
 
-    print(f"JSON file successfully created/updated: {new_file}")
+    logger.debug(f"JSON file successfully created/updated: {new_file}")
     return new_file
 
 def replace_hostname_with_last_sn(selected_file, json_data, hostname_to_sn_mapping):
@@ -121,7 +115,7 @@ def replace_hostname_with_last_sn(selected_file, json_data, hostname_to_sn_mappi
     with open(new_file, "w") as file:
         json.dump(json_data, file, indent=4)
 
-    print(f"JSON file successfully created/updated: {new_file}")
+    logger.debug(f"JSON file successfully created/updated: {new_file}")
     return new_file
 
 def create_view(current_view_name, execution_time, ipf, selected_json, unattended):
@@ -135,11 +129,9 @@ def create_view(current_view_name, execution_time, ipf, selected_json, unattende
     selected_json["name"] = new_view_name
     post_create_view = ipf.post("graphs/views", json=selected_json)
     if post_create_view.status_code == 200:
-        logger.info(f"POST to create view: {post_create_view}")
-        print(f"View `{new_view_name}` successfully created")
+        logger.debug(f"View `{new_view_name}` successfully created - {post_create_view}")
     else:
-        logger.error(f"POST to create view: {post_create_view.json()}")
-        print(f"View `{new_view_name}` NOT created")
+        logger.error(f"View `{new_view_name}` NOT created - {post_create_view}")
 
 
 
@@ -198,7 +190,7 @@ def f_restore_views(settings: Settings, execution_time, scope: str, unattended: 
         with open(selected_file, "r") as file:
             selected_json = json.load(file)
             # Use the json_data variable to access the contents of the file
-            logger.info(f"JSON file `{selected_file}` successfully read.")
+            logger.debug(f"JSON file `{selected_file}` successfully read.")
         current_view_name = selected_json["name"]
 
         # if the file is a raw json from IP Fabric, we need to replace all SN by HOSTNAME
@@ -223,10 +215,10 @@ def f_restore_views(settings: Settings, execution_time, scope: str, unattended: 
     ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
     if scope == "single":
         selected_file = select_json_file(settings)
-        restore_selected_file(selected_file, ipf)
+        if selected_file:
+            restore_selected_file(selected_file, ipf)
     else:
         files_in_folder = select_json_folder(settings)
-        print(files_in_folder)
         for selected_file in files_in_folder:
             restore_selected_file(selected_file, ipf)
     return True
@@ -244,18 +236,16 @@ def f_delete_views(settings: Settings, unattended: bool):
     """
     confirm = typer.confirm("Are you sure you want to delete all views?")
     if not confirm:
-        logger.info("Aborting deletion of views")
-        sys.exit(0)
+        logger.warning("Aborting deletion of views")
+        return False
     ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
     all_views = ipf.get("graphs/views").json()
     for view_data in all_views[:1]:
         view_name = view_data["name"]
         view_id = view_data["id"]
         delete_view = ipf.delete(f"graphs/views/{view_id}")
-        if delete_view.status_code == 200:
-            logger.info(f"DELETE view: {view_name} - {delete_view}")
-            print(f"View `{view_name}` successfully deleted")
+        if delete_view.status_code == 204:
+            logger.info(f"View `{view_name}` Deleted - {delete_view}")
         else:
-            logger.error(f"DELETE view: {view_name} - {delete_view.json()}")
-            print(f"View `{view_name}` NOT deleted")
+            logger.error(f"View `{view_name}` NOT deleted - {delete_view}")
     return True
