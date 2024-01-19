@@ -1,13 +1,12 @@
 import os
-from typing import List
 from dotenv import load_dotenv, find_dotenv
+from typing import List
 from pydantic_settings import BaseSettings
 
 load_dotenv(find_dotenv(), override=True)
 
 
 class Settings(BaseSettings):
-    
     # LOG_FILE: str = os.getenv("LOG_FILE", "logs.txt")
     # HTTP_PORT: int = int(os.getenv("HTTP_PORT", 8080))
 
@@ -20,5 +19,5 @@ class Settings(BaseSettings):
     FOLDER_JSON_ORIGINAL_SN: str = os.getenv("FOLDER_OLD_SN", "w_original_sn")
     FOLDER_JSON_HOSTNAME: str = os.getenv("FOLDER_OLD_SN", "w_hostname")
     FOLDER_JSON_NEW_SN: str = os.getenv("FOLDER_OLD_SN", "w_new_sn")
-    KEYS_TO_REMOVE: List[str]= ["savedAt", "favorite", "id", "userId", "username"]
+    KEYS_TO_REMOVE: List[str] = ["savedAt", "favorite", "id", "userId", "username"]
     # KEYS_TO_REMOVE: List[str] = os.getenv("KEYS_TO_REMOVE", "").split(",")

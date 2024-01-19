@@ -1,13 +1,15 @@
-
-import typer
 import datetime
 from loguru import logger
+import typer
 
-from modules.views_functions import f_backup_views, f_restore_views, f_delete_views
 from modules.classDefinitions import Settings
+from modules.views_functions import f_backup_views, f_restore_views, f_delete_views
 
 settings = Settings()
-app = typer.Typer(add_completion=False, pretty_exceptions_show_locals = False, pretty_exceptions_short=True)
+app = typer.Typer(
+    add_completion=False,
+    pretty_exceptions_show_locals=False,
+)
 
 
 @app.callback()
@@ -26,7 +28,9 @@ def backup(
     ),
 ):
     execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended):
+    if f_backup_views(
+        settings=settings, execution_time=execution_time, unattended=unattended
+    ):
         logger.info("Backup completed successfully")
     else:
         logger.warning("Backup failed")
@@ -46,22 +50,20 @@ def restore(
         "-a",
         help="Restore all saved views",
     ),
-    unattended: bool = typer.Option(
-        False,
-        "--unattended",
-        "-u",
-        help="Restore views, without asking for confirmation",
-    ),
 ):
     if single_view or all_views:
         scope = "single" if single_view else "all"
-        execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if f_restore_views(settings=settings, execution_time=execution_time, scope=scope, unattended=unattended):
+        if f_restore_views(
+            settings=settings,
+            scope=scope,
+        ):
             logger.info("Restore completed successfully")
         else:
             logger.warning("Restore failed")
     else:
-        logger.warning("None or both option(s) selected. Please select either --single-file or --all-files")
+        logger.warning(
+            "None or both option(s) selected. Please select either --single-file or --all-files"
+        )
 
 
 @app.command("delete")
@@ -78,6 +80,7 @@ def delete(
     else:
         logger.warning("Delete failed")
 
+
 @app.command("do-all")
 def force_update(
     unattended: bool = typer.Option(
@@ -88,9 +91,17 @@ def force_update(
     ),
 ):
     execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended)
+    latest_backup_folder = f_backup_views(
+        settings=settings, execution_time=execution_time, unattended=unattended
+    )
     f_delete_views(settings=settings, unattended=unattended)
-    f_restore_views(settings=settings, execution_time=execution_time, scope="all", unattended=False)
+    f_restore_views(
+        settings=settings,
+        execution_time=execution_time,
+        scope="all",
+        unattended=unattended,
+        latest_backup_folder=latest_backup_folder,
+    )
 
 
 if __name__ == "__main__":
