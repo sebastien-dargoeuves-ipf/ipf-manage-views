@@ -1,5 +1,6 @@
 import datetime
 from loguru import logger
+import os
 import typer
 
 from modules.classDefinitions import Settings
@@ -14,7 +15,11 @@ app = typer.Typer(
 
 @app.callback()
 def logging_configuration():
-    logger.add("log_file.log")
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    default_log_dir = os.path.join(root_dir, "logs")
+    os.makedirs(default_log_dir, exist_ok=True)
+    log_file_path = os.path.join(default_log_dir, "log_file.log")
+    logger.add(log_file_path, retention="180 days", rotation="1 MB", level="INFO", compression="tar.gz")
     logger.info("---- NEW EXECUTION OF SCRIPT ----")
 
 

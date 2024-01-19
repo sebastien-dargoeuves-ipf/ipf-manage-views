@@ -1,0 +1,5 @@
+# Pip packages to use the manage_views.py script
+typer
+loguru
+ipfabric
+pydantic-settings
