@@ -1,10 +1,15 @@
 import datetime
-from loguru import logger
 import os
+
+from loguru import logger
 import typer
 
 from modules.classDefinitions import Settings
-from modules.views_functions import f_backup_views, f_restore_views, f_delete_views
+from modules.views_functions import (
+    f_backup_views,
+    f_delete_views,
+    f_restore_views,
+)
 
 settings = Settings()
 app = typer.Typer(
@@ -19,7 +24,13 @@ def logging_configuration():
     default_log_dir = os.path.join(root_dir, "logs")
     os.makedirs(default_log_dir, exist_ok=True)
     log_file_path = os.path.join(default_log_dir, "log_file.log")
-    logger.add(log_file_path, retention="180 days", rotation="1 MB", level="INFO", compression="tar.gz")
+    logger.add(
+        log_file_path,
+        retention="180 days",
+        rotation="1 MB",
+        level="INFO",
+        compression="tar.gz",
+    )
     logger.info("---- NEW EXECUTION OF SCRIPT ----")
 
 

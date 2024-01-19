@@ -78,7 +78,8 @@ def select_json_folder(
         while True:
             # Prompt for file selection
             selection = typer.prompt(
-                "Enter the number corresponding to the Folder to restore (ideally use a `xxx/w_hostname` folder)", type=int
+                "Enter the number corresponding to the Folder to restore (ideally use a `xxx/w_hostname` folder)",
+                type=int,
             )
 
             # Check if the selected number is within range
