@@ -31,6 +31,7 @@ env.bak/
 env.tmp/
 *.egg-info/
 dist/
+.python-version
 
 # Logs
 *.log
