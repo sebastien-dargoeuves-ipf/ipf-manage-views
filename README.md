@@ -46,13 +46,13 @@ This will:
 
 ### Backup
 
-To manually backup views, run:
+Files will be saved in the `json` folder. To manually backup views, run:
 
 ```bash
 python manage_views.py backup [--unattended]
 ```
 
-The `--unattended` flag is optional and allows you to backup views without asking for confirmation.
+The `--unattended` flag is optional and allows you to backup views without asking for destination folder.
 
 ### Restore
 
@@ -62,11 +62,15 @@ To restore views, run:
 python manage_views.py restore [--single-file] [--all-files]
 ```
 
-You must select either `--single-file` to restore a single view or `--all-files` to restore all saved views inside a folder.
+You must select either `--single-file` to restore a single view or `--all-files` to restore all saved views inside a folder. A prompt will ask you to select the file or folder.
 
 ### Delete
 
-To delete views, run:
+```warning
+This will delete all views from IP Fabric, make sure you do have a backup of everything beforehand.
+```
+
+To delete all views from IP Fabric, run:
 
 ```bash
 python manage_views.py delete [--unattended]
