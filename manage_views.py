@@ -113,7 +113,6 @@ def force_update(
     f_delete_views(settings=settings, unattended=unattended)
     f_restore_views(
         settings=settings,
-        execution_time=execution_time,
         scope="all",
         unattended=unattended,
         latest_backup_folder=latest_backup_folder,
