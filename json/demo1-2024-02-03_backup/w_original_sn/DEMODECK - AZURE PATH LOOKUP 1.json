@@ -1,0 +1,290 @@
+{
+    "hiddenNodes": [],
+    "name": "DEMODECK - AZURE PATH LOOKUP 1",
+    "parameters": {
+        "destinationPoint": "10.193.0.132",
+        "dstRegions": ".*",
+        "firstHopAlgorithm": {
+            "type": "automatic"
+        },
+        "fragmentOffset": 0,
+        "groupBy": "siteName",
+        "l4Options": {
+            "type": 8,
+            "code": 0
+        },
+        "networkMode": false,
+        "otherOptions": {
+            "applications": ".*",
+            "tracked": false
+        },
+        "pathLookupType": "unicast",
+        "protocol": "icmp",
+        "securedPath": true,
+        "srcRegions": ".*",
+        "startingPoint": "10.35.119.172",
+        "ttl": 128,
+        "type": "pathLookup",
+        "enableRegions": true
+    },
+    "positions": {
+        "a23ffac": {
+            "x": 40,
+            "y": 80
+        },
+        "a23ffab": {
+            "x": 200,
+            "y": 80
+        },
+        "a23ff65": {
+            "x": 360,
+            "y": 80
+        },
+        "a15ff97": {
+            "x": 520,
+            "y": 80
+        },
+        "a15ff99": {
+            "x": 680,
+            "y": 80
+        },
+        "a15ff0b": {
+            "x": 880,
+            "y": 200
+        },
+        "a15ff0c": {
+            "x": 880,
+            "y": 40
+        },
+        "a15ff01": {
+            "x": 1080,
+            "y": 120
+        },
+        "a15ff02": {
+            "x": 1240,
+            "y": 120
+        },
+        "a15ff0d": {
+            "x": 1440,
+            "y": 200
+        },
+        "a15ff0e": {
+            "x": 1440,
+            "y": 40
+        },
+        "a15ff9a": {
+            "x": 1640,
+            "y": 80
+        },
+        "a15ff98": {
+            "x": 1800,
+            "y": 80
+        },
+        "a23ff74": {
+            "x": 1960,
+            "y": 80
+        },
+        "a23ffbf": {
+            "x": 2120,
+            "y": 80
+        },
+        "a23ffc7": {
+            "x": 2320,
+            "y": 200
+        },
+        "9AMSST2E75V": {
+            "x": 2320,
+            "y": 40
+        },
+        "/subscriptions/7a329198-ceb1-4e25-9ac3-e98855c16377/resourceGroups/LAB-Static-NorthEurope/providers/Microsoft.Network/virtualNetworkGateways/VNetGw.Vpn.NorthEurope": {
+            "x": 2760,
+            "y": 80
+        },
+        "/subscriptions/7a329198-ceb1-4e25-9ac3-e98855c16377/resourceGroups/LAB-Static/providers/Microsoft.Network/virtualNetworkGateways/VNetGw.Vpn.WestEurope": {
+            "x": 2960,
+            "y": 80
+        },
+        "/subscriptions/7a329198-ceb1-4e25-9ac3-e98855c16377/resourceGroups/LAB-Static/providers/Microsoft.Network/virtualNetworks/VNet-Hub.WestEurope": {
+            "x": 3120,
+            "y": 80
+        },
+        "transit": {
+            "x": 2560,
+            "y": 80
+        },
+        "host-10.193.0.132": {
+            "x": 3280,
+            "y": 80
+        }
+    },
+    "collapsedNodeGroups": [],
+    "preview": "iVBORw0KGgoAAAANSUhEUgAABAsAAABcCAYAAAAI/jzrAAAAAXNSR0IArs4c6QAAIABJREFUeF7tnQvQHlV5x59NQkJAIAmEEDCghkgcEZkmDJZBQcIIAglIp+AUL1BLAnJHxbYWZ2rHUrCilojkE6t0mCo3kY/LSGgQ7HCpkzCZMYQCGYqYGySGACGQ27eds1/2y36bvZx993bO2d874xi+9+w5z/N7nnP7v2d3PeEDAQhAAAKNEvB9309qcNGiRTJmzBiZPn263HHHHXLJJZfItddeK57nyQknnCATJ06UPfbYQ5588kl588035aqrrkq021MX8IEABCAQI5A29tx7773y+9//Xo455hh55ZVX5J133pErr7xSfvOb38jUqVNl4cKFsu+++8rmzZtl7NixMmXKFFm5cqUcddRR8tvf/lZGjx4thx9+eDA+LV++PGj11FNPlUcffTT493nnnSc/+9nPZNKkSfLWW2/JBz/4QXn22Wdln332kTlz5shPfvKT4N/nnHMOYxpZCwEIQMAgAiwoDQqGi6asW7cucVPkoq/4BAFdAgcccEBi0TvvvFPWrl0rkydPlsWLF8v1118v8+fPlz/+8Y/yyU9+Uvbcc89ATFi6dKlMmzZNTj755MR61q9fr2sK5SDQGQITJ06sZM1j87yWNvY8//zz8tRTT8n+++8vL730khx22GFy1llnyQ033CAHHXSQPPHEE8G4pESCUOtct26dHHnkkbJs2TI5/vjjA9FAfY499lgZOXKk7NixIxAglKAwa9asQAAdN26cPP300zJhwgT5wAc+EIxhakxT45yy7bOf/axTY1pVOdeZToqjEICAcQQqmTiN8wqDWiWgFlJMkK2GgMYNJ5D2697dd98tL7/8smzZskXGjx8vX/7yl+W6666TD3/4w8HCe+vWrcHf1f+rxbv6LunDyQLDEwDzWiXQyxzVyzWtOpnSeNrY88ILL8jjjz8enAw49NBDAwHg8ssvl5tuuin470ceeSQ4FaDEBCUEqJMHquy2bduCkwIf+chHApFhYGAgKD9ixIhAZHjmmWeC8UuJBT//+c+D63/3u98FwsB+++0XiAxKgLjxxhuDv33hC19wckwLBSbWRib2CmyCAASyCCAWkB8QgAAEGiaQtmBXC3J1B4FacI8aNUpOOukk6e/vDxbTa9askY0bNwYL7FWr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",
+    "settings": {
+        "edges": [
+            {
+                "id": "6129bb53-d19d-47ee-8f45-8829073221c1",
+                "name": "vxlan",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#d4b524",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "f61ad8e8-ce17-11eb-b8bc-0242ac130003",
+                "name": "capwap",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#d4b524",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "7f6aa12d-84da-4481-a968-2119085d2778",
+                "name": "gre",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#d4b524",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "c24cb567-e4dc-4bcd-8f97-9c614c4bb6cd",
+                "name": "esp",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#d4b524",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "f79f180a-9997-4931-9724-97e66b61b79c",
+                "name": "mpls",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#ff9800",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                "name": "ethernetVlan",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#99ccff",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "a8092d28-cee8-42f8-8179-79182996b924",
+                "name": "ip",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#ff99ff",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            },
+            {
+                "id": "507051b3-aae8-462d-85c4-d5ba1518a1fd",
+                "name": "ethernet",
+                "type": "pathLookupEdge",
+                "grouped": false,
+                "style": {
+                    "color": "#7aa3cc",
+                    "pattern": "solid",
+                    "thicknessThresholds": [
+                        2,
+                        4,
+                        8
+                    ]
+                },
+                "visible": true,
+                "labels": [
+                    "intName",
+                    "protocol"
+                ]
+            }
+        ],
+        "pathLookup": {
+            "ignoredTopics": [],
+            "colorDetectedLoops": true
+        }
+    }
+}

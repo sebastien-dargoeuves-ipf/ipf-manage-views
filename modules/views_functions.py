@@ -113,32 +113,10 @@ def get_last_hostname_to_sn_mapping(ipf: IPFClient):
 
 def replace_sn_with_hostname(destination_file, json_data, sn_to_device_mapping):
     """
-    Replaces the serial number with the hostname in a JSON file.
-
-    Args:
-        destination_file (str): The path to the destination JSON file.
-        json_data (dict): The JSON data to be updated.
-        sn_to_device_mapping (list): A list of dictionaries containing the serial number and corresponding hostname.
-
-    Returns:
-        str: The path to the updated JSON file.
-
-    Examples:
-        destination_file = "data.json"
-        json_data = {
-            "positions": {
-                "SN123": {"name": "Device1"},
-                "SN456": {"name": "Device2"}
-            }
-        }
-        sn_to_device_mapping = [
-            {"sn": "SN123", "hostname": "Router1"},
-            {"sn": "SN456", "hostname": "Router2"}
-        ]
-        result = replace_sn_with_hostname(destination_file, json_data, sn_to_device_mapping)
-        # Output: "data.json"
+    Replace the serial number with the hostname
+    :param sn_to_device_mapping: dict
+    :return: None
     """
-
     # Replace the serial number with the hostname
     for item in sn_to_device_mapping:
         sn = item["sn"]
@@ -233,21 +211,18 @@ def f_backup_views(settings: Settings, execution_time, unattended: bool = False)
         for key in settings.KEYS_TO_REMOVE:
             if key in view_data:
                 del view_data[key]
-
-        # Save the original JSON file
-        with open(
-            f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}/{view_name}.json", "w"
-        ) as file:
-            json.dump(view_data, file, indent=4)
-        logger.debug(f"View {view_name} successfully backed up")
-
         # Replace the serial number with the hostname
         replace_sn_with_hostname(
             f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}/{view_name}_HOSTNAME.json",
             view_data,
             sn_to_device_mapping,
         )
-
+        # Save the original JSON file
+        with open(
+            f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}/{view_name}.json", "w"
+        ) as file:
+            json.dump(view_data, file, indent=4)
+        logger.debug(f"View {view_name} successfully backed up")
     return f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}"
 
 
