@@ -9,6 +9,7 @@ from modules.views_functions import (
     f_backup_views,
     f_delete_views,
     f_restore_views,
+    check_views_already_exist,
 )
 
 settings = Settings()
@@ -110,6 +111,8 @@ def force_update(
     latest_backup_folder = f_backup_views(
         settings=settings, execution_time=execution_time, unattended=unattended
     )
+    if not check_views_already_exist(settings=settings):
+        latest_backup_folder = "./scripts/manage_ipf_views/json/baseline/w_hostname"
     f_delete_views(settings=settings, unattended=unattended)
     f_restore_views(
         settings=settings,
