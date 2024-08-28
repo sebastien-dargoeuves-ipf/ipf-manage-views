@@ -10,6 +10,35 @@ import typer
 
 from modules.classDefinitions import Settings
 
+VIEW_NAMES_LIST = [
+    "E2E - inter-VXLAN",
+    "E2E - Multicast",
+    "E2E - NAT - Users to EMAIL server",
+    "E2E - NAT - Users to LDAPLDAPs",
+    "E2E - NAT - Users to RDP 389  3389",
+    "E2E - NAT - Users to WEB Server",
+    "E2E - Site1 to Site2 - Admin SSH",
+    "E2E - Site1 to Site2 - Web User",
+    "e2e-site1-to-site2-ipsec",
+    "e2e-site1-to-site3",
+    "e2e-site1-to-site4",
+    "e2e-site2-to-site1-ipsec",
+    "e2e-site3-to-management",
+    "e2e-site3-to-site1",
+    "e2e-site3-to-site3",
+    "e2e-site4-to-site1",
+    "Full View - L1",
+    "Full View - L2",
+    "Full View - L3",
+    "Full View",
+    "IGP  BGP Topology",
+    "PBR - NOK - to R04 - wrong source",
+    "PBR - OK - to R04",
+    "PBR - OK - to R05",
+    "PBR - site1-site2",
+    "TESTPATH",
+]
+
 
 def select_json_file(settings: Settings):
     # # Get the list of files in the folders
@@ -17,9 +46,7 @@ def select_json_file(settings: Settings):
     for root, dirs, files in os.walk(settings.FOLDER_JSON):
         file_list.extend(os.path.join(root, file) for file in files)
     if not file_list:
-        logger.warning(
-            f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore."
-        )
+        logger.warning(f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore.")
         return False
     # Display the list of files with corresponding numbers
     print(f"List of files in the '{settings.FOLDER_JSON}' folder:")
@@ -28,9 +55,7 @@ def select_json_file(settings: Settings):
 
     while True:
         # Prompt for file selection
-        selection = typer.prompt(
-            "Enter the number corresponding to the JSON file to read", type=int
-        )
+        selection = typer.prompt("Enter the number corresponding to the JSON file to read", type=int)
 
         # Check if the selected number is within range
         if 1 <= selection <= len(file_list):
@@ -40,9 +65,7 @@ def select_json_file(settings: Settings):
             print("Selection outside the scope. Please select a valid number.")
 
 
-def select_json_folder(
-    settings: Settings, unattended: bool = False, latest_backup_folder: str = None
-):
+def select_json_folder(settings: Settings, unattended: bool = False, latest_backup_folder: str = None):
     """
     Select a JSON folder for restoration.
 
@@ -63,9 +86,7 @@ def select_json_folder(
             or dir.endswith(settings.FOLDER_JSON_NEW_SN)
         )
     if not folder_list:
-        logger.warning(
-            f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore."
-        )
+        logger.warning(f"No files found in the '{settings.FOLDER_JSON}' folder, nothing to restore.")
         return False
 
     if unattended:
@@ -152,6 +173,9 @@ def replace_hostname_with_last_sn(selected_file, json_data, hostname_to_sn_mappi
 
     # Save the updated JSON file
     new_file = selected_file.replace("_HOSTNAME.json", "_NEW_SN.json")
+    # check that the folder exists and if not, create it
+    if not os.path.exists(os.path.dirname(new_file)):
+        os.makedirs(os.path.dirname(new_file))
     with open(new_file, "w") as file:
         json.dump(json_data, file, indent=4)
 
@@ -161,9 +185,7 @@ def replace_hostname_with_last_sn(selected_file, json_data, hostname_to_sn_mappi
 
 def create_view(current_view_name, ipf, selected_json, unattended):
     if not unattended:
-        new_view_name = typer.prompt(
-            "Chose a name for this view", type=str, default=f"{current_view_name}"
-        )
+        new_view_name = typer.prompt("Chose a name for this view", type=str, default=f"{current_view_name}")
     else:
         new_view_name = f"{current_view_name}"
 
@@ -201,9 +223,7 @@ def f_backup_views(settings: Settings, execution_time, unattended: bool = False)
         os.makedirs(f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}")
         os.makedirs(f"{backup_folder}/{settings.FOLDER_JSON_NEW_SN}")
 
-    ipf = IPFClient(
-        base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY
-    )
+    ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
     sn_to_device_mapping = get_sn_to_device_mapping(ipf)
     all_views = ipf.get("graphs/views").json()
     for view_data in all_views:
@@ -218,9 +238,7 @@ def f_backup_views(settings: Settings, execution_time, unattended: bool = False)
             sn_to_device_mapping,
         )
         # Save the original JSON file
-        with open(
-            f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}/{view_name}.json", "w"
-        ) as file:
+        with open(f"{backup_folder}/{settings.FOLDER_JSON_ORIGINAL_SN}/{view_name}.json", "w") as file:
             json.dump(view_data, file, indent=4)
         logger.debug(f"View {view_name} successfully backed up")
     return f"{backup_folder}/{settings.FOLDER_JSON_HOSTNAME}"
@@ -264,16 +282,12 @@ def f_restore_views(
 
         # if the file is a raw json from IP Fabric, we need to replace all SN by HOSTNAME
         # using the information from the Discovery History
-        if not selected_file.endswith("_HOSTNAME.json") and not selected_file.endswith(
-            "_NEW_SN.json"
-        ):
+        if not selected_file.endswith("_HOSTNAME.json") and not selected_file.endswith("_NEW_SN.json"):
             sn_to_device_mapping = get_sn_to_device_mapping(ipf)
             # if the device deosn't end with HOSTNAME, we need to copy it in the w_hostname folder
             selected_file = selected_file.replace(".json", "_HOSTNAME.json")
             selected_file = replace_sn_with_hostname(
-                selected_file.replace(
-                    settings.FOLDER_JSON_ORIGINAL_SN, settings.FOLDER_JSON_HOSTNAME
-                ),
+                selected_file.replace(settings.FOLDER_JSON_ORIGINAL_SN, settings.FOLDER_JSON_HOSTNAME),
                 selected_json,
                 sn_to_device_mapping,
             )
@@ -295,9 +309,7 @@ def f_restore_views(
 
     if not os.path.exists(settings.FOLDER_JSON):
         os.makedirs(settings.FOLDER_JSON)
-    ipf = IPFClient(
-        base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY
-    )
+    ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
     if scope == "single":
         selected_file = select_json_file(settings)
         if selected_file:
@@ -328,12 +340,12 @@ def f_delete_views(settings: Settings, unattended: bool):
         if not confirm:
             logger.warning("Aborting deletion of views")
             return False
-    ipf = IPFClient(
-        base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY
-    )
+    ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
     all_views = ipf.get("graphs/views").json()
     for view_data in all_views:
         view_name = view_data["name"]
+        if view_name not in VIEW_NAMES_LIST:
+            continue
         view_id = view_data["id"]
         delete_view = ipf.delete(f"graphs/views/{view_id}")
         if delete_view.status_code == 204:
@@ -341,3 +353,22 @@ def f_delete_views(settings: Settings, unattended: bool):
         else:
             logger.error(f"View `{view_name}` NOT deleted - {delete_view}")
     return True
+
+
+def check_views_already_exist(settings: Settings):
+    """
+    Check if the views from baseline already exist in IPF.
+
+    Args:
+        ipf_url (str): The base URL of the IPF server.
+        ipf_token (str): The authentication token for accessing the IPF server.
+
+    Returns:
+        bool: True if all views exist, False otherwise.
+    """
+    ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
+    all_views = ipf.get("graphs/views").json()
+    all_view_names = [view_data["name"] for view_data in all_views]
+    if all(view_name in VIEW_NAMES_LIST for view_name in all_view_names):
+        return True
+    return False
