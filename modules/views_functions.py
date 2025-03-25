@@ -10,35 +10,6 @@ import typer
 
 from modules.classDefinitions import Settings
 
-VIEW_NAMES_LIST = [
-    "E2E - inter-VXLAN",
-    "E2E - Multicast",
-    "E2E - NAT - Users to EMAIL server",
-    "E2E - NAT - Users to LDAPLDAPs",
-    "E2E - NAT - Users to RDP 389  3389",
-    "E2E - NAT - Users to WEB Server",
-    "E2E - Site1 to Site2 - Admin SSH",
-    "E2E - Site1 to Site2 - Web User",
-    "e2e-site1-to-site2-ipsec",
-    "e2e-site1-to-site3",
-    "e2e-site1-to-site4",
-    "e2e-site2-to-site1-ipsec",
-    "e2e-site3-to-management",
-    "e2e-site3-to-site1",
-    "e2e-site3-to-site3",
-    "e2e-site4-to-site1",
-    "Full View - L1",
-    "Full View - L2",
-    "Full View - L3",
-    "Full View",
-    "IGP  BGP Topology",
-    "PBR - NOK - to R04 - wrong source",
-    "PBR - OK - to R04",
-    "PBR - OK - to R05",
-    "PBR - site1-site2",
-    "TESTPATH",
-]
-
 
 def select_json_file(settings: Settings):
     # # Get the list of files in the folders
@@ -119,7 +90,7 @@ def get_sn_to_device_mapping(ipf: IPFClient):
     :param ipf: IPFClient object
     :return: dict
     """
-    dh = DiscoveryHistory(ipf)
+    dh = DiscoveryHistory(ipf=ipf)
     return dh.get_all_history(columns=["sn", "hostname"])
 
 
@@ -326,7 +297,7 @@ def f_restore_views(
 
 def f_delete_views(settings: Settings, unattended: bool):
     """
-    Delete all views in IPF.
+    Delete all views in IPF
 
     Args:
         ipf_url (str): The base URL of the IPF server.
@@ -336,7 +307,7 @@ def f_delete_views(settings: Settings, unattended: bool):
         None
     """
     if not unattended:
-        confirm = typer.confirm("Are you sure you want to delete all views?")
+        confirm = typer.confirm("Are you sure you want to delete all existing views?")
         if not confirm:
             logger.warning("Aborting deletion of views")
             return False
@@ -344,8 +315,6 @@ def f_delete_views(settings: Settings, unattended: bool):
     all_views = ipf.get("graphs/views").json()
     for view_data in all_views:
         view_name = view_data["name"]
-        if view_name not in VIEW_NAMES_LIST:
-            continue
         view_id = view_data["id"]
         delete_view = ipf.delete(f"graphs/views/{view_id}")
         if delete_view.status_code == 204:
@@ -353,22 +322,3 @@ def f_delete_views(settings: Settings, unattended: bool):
         else:
             logger.error(f"View `{view_name}` NOT deleted - {delete_view}")
     return True
-
-
-def check_views_already_exist(settings: Settings):
-    """
-    Check if the views from baseline already exist in IPF.
-
-    Args:
-        ipf_url (str): The base URL of the IPF server.
-        ipf_token (str): The authentication token for accessing the IPF server.
-
-    Returns:
-        bool: True if all views exist, False otherwise.
-    """
-    ipf = IPFClient(base_url=settings.IPF_URL, auth=settings.IPF_TOKEN, verify=settings.IPF_VERIFY)
-    all_views = ipf.get("graphs/views").json()
-    all_view_names = [view_data["name"] for view_data in all_views]
-    if all(view_name in VIEW_NAMES_LIST for view_name in all_view_names):
-        return True
-    return False
