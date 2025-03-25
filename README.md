@@ -4,7 +4,7 @@ This script provides command-line interface (CLI) commands to manage views. It s
 
 ## Requirements
 
-- Python 3.6 or higher
+- Python 3.8 or higher
 - typer
 - loguru
 - ipfabric
@@ -25,22 +25,6 @@ This script provides command-line interface (CLI) commands to manage views. It s
     cp .env.sample .env
     vi .env
     ```
-
-## Automation usage
-
-To run as part as the automated process, you will want to use this command:
-
-```bash
-python manage_views.py do-all --unattended
-```
-
-This will:
-
-1. get a backup of all views in IP Fabric, this is a JSON file, containing the SN as of when the view was created
-2. create a new JSON, replacing that SN by the matching hostname
-3. delete all views in IP Fabric
-4. find the SN matching the hostname in the LAST snapshot of IP Fabric
-5. Push the views in IP Fabric
 
 ## Usage
 
@@ -77,13 +61,3 @@ python manage_views.py delete [--unattended]
 ```
 
 The `--unattended` flag is optional and allows you to delete views without asking for confirmation.
-
-### Force Update
-
-To backup, delete, and restore views, run:
-
-```bash
-python manage_views.py do-all [--unattended]
-```
-
-The `--unattended` flag is optional and allows you to perform all operations without asking for confirmation.
