@@ -92,26 +92,5 @@ def delete(
     else:
         logger.warning("Delete failed")
 
-
-@app.command("do-all")
-def force_update(
-    unattended: bool = typer.Option(
-        False,
-        "--unattended",
-        "-u",
-        help="Backup/Delete/Restore views, without asking for confirmation",
-    ),
-):
-    execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    latest_backup_folder = f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended)
-    f_delete_views(settings=settings, unattended=unattended)
-    f_restore_views(
-        settings=settings,
-        scope="all",
-        unattended=unattended,
-        latest_backup_folder=latest_backup_folder,
-    )
-
-
 if __name__ == "__main__":
     app()
