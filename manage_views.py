@@ -44,9 +44,7 @@ def backup(
     ),
 ):
     execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if f_backup_views(
-        settings=settings, execution_time=execution_time, unattended=unattended
-    ):
+    if f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended):
         logger.info("Backup completed successfully")
     else:
         logger.warning("Backup failed")
@@ -77,9 +75,7 @@ def restore(
         else:
             logger.warning("Restore failed")
     else:
-        logger.warning(
-            "None or both option(s) selected. Please select either --single-file or --all-files"
-        )
+        logger.warning("None or both option(s) selected. Please select either --single-file or --all-files")
 
 
 @app.command("delete")
@@ -107,9 +103,7 @@ def force_update(
     ),
 ):
     execution_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    latest_backup_folder = f_backup_views(
-        settings=settings, execution_time=execution_time, unattended=unattended
-    )
+    latest_backup_folder = f_backup_views(settings=settings, execution_time=execution_time, unattended=unattended)
     f_delete_views(settings=settings, unattended=unattended)
     f_restore_views(
         settings=settings,

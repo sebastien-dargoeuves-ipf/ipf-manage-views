@@ -1,7 +1,6 @@
 import json
 import os
 import re
-from datetime import datetime
 
 from ipfabric import IPFClient
 from ipfabric.tools import DiscoveryHistory
